@@ -25,8 +25,15 @@ def num_eights(n):
     True
     """
     "*** YOUR CODE HERE ***"
-
-
+    def num(n):
+        if n == 0:
+            return 0
+        elif n % 10 == 8:
+            return 1 + num(n//10)
+        else:
+            return num(n//10)
+    return num(n)
+        
 def digit_distance(n):
     """Determines the digit distance of n.
 
@@ -47,7 +54,11 @@ def digit_distance(n):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    if n // 10 == 0:
+        return 0
+    else:
+        return abs(n%10 - n//10%10) + digit_distance(n//10)
+    
 
 def interleaved_sum(n, odd_func, even_func):
     """Compute the sum odd_func(1) + even_func(2) + odd_func(3) + ..., up
@@ -60,7 +71,7 @@ def interleaved_sum(n, odd_func, even_func):
     29
     >>> interleaved_sum(5, square, identity) # 1*1 + 2   + 3*3 + 4   + 5*5
     41
-    >>> interleaved_sum(4, triple, square)   # 1*3 + 2*2 + 3*3 + 4*4
+    >>> interleaved_sum(4, triple, square)   # 1*3 + 2*2 + 3*3 + 4*2
     32
     >>> interleaved_sum(4, square, triple)   # 1*1 + 2*3 + 3*3 + 4*3
     28
@@ -71,7 +82,16 @@ def interleaved_sum(n, odd_func, even_func):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    def odd(i):
+        if i > n:
+            return 0
+        return odd_func(i) + even(i+1)
+    def even(i):
+        if i > n:
+            return 0
+        return even_func(i) + odd(i+1)
+    return odd(1)
+     
 
 def next_smaller_dollar(bill):
     """Returns the next smaller bill in order."""
@@ -107,6 +127,17 @@ def count_dollars(total):
     True
     """
     "*** YOUR CODE HERE ***"
+    def helper(total, bill):
+        if total == 0:
+            return 1
+        if total < 0 or bill is None:
+            return 0
+        else:
+            with_bill = helper(total - bill, bill)
+            without_bill = helper(total, next_smaller_dollar(bill))
+            return with_bill + without_bill
+
+    return helper(total, 100)
 
 
 def next_larger_dollar(bill):
@@ -143,6 +174,16 @@ def count_dollars_upward(total):
     True
     """
     "*** YOUR CODE HERE ***"
+    def helper(total, bill):
+        if total == 0:
+            return 1
+        if total < 0 or bill is None:
+            return 0
+        else:
+            with_bill = helper(total - bill, bill)
+            without_bill = helper(total, next_larger_dollar(bill))
+            return with_bill + without_bill
+    return helper(total, 1)
 
 
 def print_move(origin, destination):
@@ -178,6 +219,12 @@ def move_stack(n, start, end):
     """
     assert 1 <= start <= 3 and 1 <= end <= 3 and start != end, "Bad start/end"
     "*** YOUR CODE HERE ***"
+    if n == 1:
+        print_move(start, end)
+    else:
+        move_stack(n-1, start, 1+2+3-start-end)
+        print_move(start, end)
+        move_stack(n-1, 1+2+3-start-end, end)
 
 
 from operator import sub, mul
@@ -193,5 +240,12 @@ def make_anonymous_factorial():
     ...     ['Assign', 'AnnAssign', 'AugAssign', 'NamedExpr', 'FunctionDef', 'Recursion'])
     True
     """
-    return 'YOUR_EXPRESSION_HERE'
+    return (lambda f: f(f)) (lambda f: lambda n: 1 if n==0 else n*f(f)(n-1))
 
+''' Y 不动点组合子思想：
+    fact = lambda n: 1 if n==0 else n*fact(n-1)
+    but I don't want to use the explicit function name 'fact'
+    f_ = lambda f: lambda n: 1 if n==0 else n*f(n-1) --> 'f' is implicit,however, f is explicit
+    Y = lambda f:(lambda F: F(F)) (lambda F: f(lambda y: F(F)(y)))
+    factorial = Y(f_)
+'''
